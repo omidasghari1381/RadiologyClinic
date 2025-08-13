@@ -3,7 +3,10 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({ versionKey: false })
 export class Device extends AbstractDocument {
-  @Prop()
-  localIP: number;
+  @Prop({
+    type: String,
+    required: true,
+  })
+  localIP: string;
 }
 export const deviceSchema = SchemaFactory.createForClass(Device);

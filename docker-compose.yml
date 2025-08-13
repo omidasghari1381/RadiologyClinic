@@ -1,0 +1,128 @@
+services:
+  devices:
+    build:
+      context: .
+      dockerfile: ./apps/devices/Dockerfile
+      target: development
+    command: sh -lc "npm ci && npm run start:dev devices"
+    env_file:
+      - ./apps/devices/.env
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_started
+      mongo-arb:
+        condition: service_started
+      mongo-setup:
+        condition: service_completed_successfully
+      signal-processor:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - devices_nm:/usr/src/app/node_modules
+    ports:
+      - '3000:3000'
+
+  signal-processor:
+    build:
+      context: .
+      dockerfile: ./apps/signal-processor/Dockerfile
+      target: development
+    command: sh -lc "npm ci && npm run start:dev signal-processor"
+    env_file:
+      - ./apps/signal-processor/.env
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_started
+      mongo-arb:
+        condition: service_started
+      mongo-setup:
+        condition: service_completed_successfully
+      rabbitmq:
+        condition: service_started
+    volumes:
+      - .:/usr/src/app
+      - signal-processor_nm:/usr/src/app/node_modules
+    ports:
+      - '3001:3001'
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:3001/health', r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  rabbitmq:
+    image: rabbitmq:3
+    ports:
+      - '5672:5672'
+
+  mongo1:
+    image: mongo:7.0
+    platform: linux/arm64/v8
+    command: ["mongod","--replSet","rs0","--bind_ip_all"]
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo1:/data/db
+    healthcheck:
+      test: ["CMD", "bash", "-lc", "mongosh --eval 'db.adminCommand({ ping: 1 })' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+  mongo2:
+    image: mongo:7.0
+    platform: linux/arm64/v8
+    command: ["mongod","--replSet","rs0","--bind_ip_all"]
+    depends_on:
+      - mongo1
+
+  mongo-arb:
+    image: mongo:7.0
+    platform: linux/arm64/v8
+    command: ["mongod","--replSet","rs0","--bind_ip_all"]
+    depends_on:
+      - mongo1
+
+  mongo-setup:
+    image: mongo:7.0
+    platform: linux/arm64/v8
+    depends_on:
+      mongo1:
+        condition: service_healthy
+      mongo2:
+        condition: service_started
+      mongo-arb:
+        condition: service_started
+    entrypoint: ["mongosh"]
+    command:
+      - "mongodb://mongo1:27017"
+      - "--eval"
+      - |
+        try {
+          rs.status();
+          print("ReplicaSet already initiated.");
+        } catch (e) {
+          print("Initiating ReplicaSet...");
+          rs.initiate({
+            _id: "rs0",
+            members: [
+              { _id: 0, host: "mongo1:27017" },
+              { _id: 1, host: "mongo2:27017" },
+              { _id: 2, host: "mongo-arb:27017", arbiterOnly: true }
+            ]
+          });
+        }
+        rs.status();
+
+volumes:
+  mongo1:
+  devices_nm:
+  signal-processor_nm:
+  

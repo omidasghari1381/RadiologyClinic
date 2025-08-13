@@ -67,9 +67,9 @@ export abstract class AbstractRepository<TDocument extends AbstractDocument> {
     );
     return newDocument as Plain<TDocument>;
   }
-  async find(filterQuery: FilterQuery<TDocument>): Promise<Plain<TDocument>> {
+  async find(filterQuery: FilterQuery<TDocument>): Promise<Plain<TDocument>[]> {
     const document = await this.model.find(filterQuery, {}, { lean: true });
-    return document as Plain<TDocument>;
+    return document as Plain<TDocument>[];
   }
   async startTransaction() {
     const session = await this.connection.startSession();
