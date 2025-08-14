@@ -1,4 +1,4 @@
-import { Controller, Delete, Get } from '@nestjs/common';
+import { Body, Controller, Delete, Get } from '@nestjs/common';
 import { SignalProcessorService } from './signal-processor.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { RmqService } from '@app/common';
@@ -14,6 +14,7 @@ export class SignalProcessorController {
   health() {
     return { status: 'ok' };
   }
+
   @EventPattern('signal_created')
   async handleSignalCreated(@Payload() data: any, @Ctx() context: RmqContext) {
     try {
@@ -29,7 +30,7 @@ export class SignalProcessorController {
     return this.signalProcessorService.getAnalysis();
   }
   @Delete()
-  deleteAll() {
-    return this.signalProcessorService.deleteAll();
+  deleteAll(@Body() filter?: object) {
+    return this.signalProcessorService.deleteAll(filter);
   }
 }
