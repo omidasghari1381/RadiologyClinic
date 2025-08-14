@@ -81,28 +81,6 @@ export class DevicesService {
 
   getSignals = async (
     query: any,
-    // _id?: string,
-    // deviceId?: string,
-    // timeFrom?: string,
-    // timeTo?: string,
-    // dtime?: number,
-    // dtimeMin?: number,
-    // dtimeMax?: number,
-    // x?: number,
-    // xMin?: number,
-    // xMax?: number,
-    // y?: number,
-    // yMin?: number,
-    // yMax?: number,
-    // speed?: number,
-    // speedMin?: number,
-    // speedMax?: number,
-    // dataLength?: number,
-    // dataLengthMin?: number,
-    // dataLengthMax?: number,
-    // dataVolume?: number,
-    // dataVolumeMin?: number,
-    // dataVolumeMax?: number,
   ) => {
     const {
       _id,

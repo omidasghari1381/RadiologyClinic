@@ -46,17 +46,6 @@ export class DevicesController {
   @Get('signals')
   async getSignals(
     @Query() query: any,
-    // @Query('_id') _id?: string,
-    // @Query('deviceId') deviceId?: string,
-    // @Query('time') time?: string,
-    // @Query('dtime') dtime?: string,
-    // @Query('x', new ParseIntPipe({ optional: true })) x?: number,
-    // @Query('y', new ParseIntPipe({ optional: true })) y?: number,
-    // @Query('speed', new ParseIntPipe({ optional: true })) speed?: number,
-    // @Query('dataLength', new ParseIntPipe({ optional: true }))
-    // dataLength?: number,
-    // @Query('dataVolume', new ParseIntPipe({ optional: true }))
-    // dataVolume?: number,
   ) {
     const numberFields = [
       'dtime',
