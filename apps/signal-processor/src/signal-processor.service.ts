@@ -24,6 +24,9 @@ export class SignalProcessorService {
   };
   getAnalysis = async () => {
     const list = await this.analysisrepo.find({});
-    return list
+    return list;
+  };
+  deleteAll = async () => {
+    return this.analysisrepo.deleteAll();
   };
 }

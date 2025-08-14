@@ -9,7 +9,10 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Device, deviceSchema } from './schemas/devices.schema';
 import { SignalsRepository } from './repository/signals.repository';
 import { Signal, signalSchema } from './schemas/signal.schema';
-import { SIGNAL_PROCESSOR_SERVICE } from './constans/services';
+import {
+  SIGNAL_CREATOR_SERVICE,
+  SIGNAL_PROCESSOR_SERVICE,
+} from './constans/services';
 
 @Module({
   imports: [
@@ -18,6 +21,7 @@ import { SIGNAL_PROCESSOR_SERVICE } from './constans/services';
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
         PORT: Joi.number().required(),
+        RABBIT_MQ_DEVICES_SERVICE_QUEUE: Joi.string().required(),
       }),
       envFilePath: './apps/devices/.env',
     }),
@@ -29,7 +33,8 @@ import { SIGNAL_PROCESSOR_SERVICE } from './constans/services';
       ],
       'main',
     ),
-    RmqModule.register({name:SIGNAL_PROCESSOR_SERVICE})
+    RmqModule.register({ name: SIGNAL_PROCESSOR_SERVICE }),
+    RmqModule.register({ name: SIGNAL_CREATOR_SERVICE }),
   ],
   controllers: [DevicesController],
   providers: [DevicesService, DevicesRepository, SignalsRepository],

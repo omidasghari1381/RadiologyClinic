@@ -10,11 +10,17 @@ import {
   SignalAnalysisSchema,
 } from './schemas/signal-analysis.schema';
 import { SignalAnalysisRepository } from './repository/signal-analysis.repository';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: [
+        join(process.cwd(), 'apps/signal-processor/.env'),
+        join(process.cwd(), '.env'),
+        join(__dirname, '..', '.env'),
+      ],
       validationSchema: Joi.object({
         MONGODB_URI: Joi.string().required(),
         PORT: Joi.number().required(),

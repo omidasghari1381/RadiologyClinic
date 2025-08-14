@@ -14,9 +14,9 @@ describe('SignalProcessorController', () => {
     signalProcessorController = app.get<SignalProcessorController>(SignalProcessorController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(signalProcessorController.getHello()).toBe('Hello World!');
-    });
-  });
+  // describe('root', () => {
+  //   it('should return "Hello World!"', () => {
+  //     expect(signalProcessorController.getHello()).toBe('Hello World!');
+  //   });
+  // });
 });

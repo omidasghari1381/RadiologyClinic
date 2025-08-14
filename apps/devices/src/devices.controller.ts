@@ -1,22 +1,37 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Post,
   Query,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { DevicesService } from './devices.service';
 import { NormalizeXRayBodyPipe } from './pipes/normalizeXRayBody.pipe';
+import { randomUUID } from 'crypto';
+import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
+import { RmqService } from '@app/common';
 
 @Controller('devices')
 export class DevicesController {
-  constructor(private readonly devicesService: DevicesService) {}
+  constructor(
+    private readonly devicesService: DevicesService,
+    private readonly rmqService: RmqService,
+  ) {}
+
   @Post('create-signal')
-  async createSignal(@Body(NormalizeXRayBodyPipe) requset: any) {
-    return this.devicesService.createSignal(requset);
+  @HttpCode(HttpStatus.ACCEPTED)
+  async createSignal(@Body(NormalizeXRayBodyPipe) request: any) {
+    const requestId = randomUUID();
+    await this.devicesService.enqueueSignal({
+      ...request,
+      requestId,
+    });
+    return { status: 'queued', requestId };
   }
+
   @Post()
   async createDevice(@Body('localIP') localIP: string) {
     return this.devicesService.createDevice(localIP);
@@ -28,5 +43,33 @@ export class DevicesController {
   @Get('signals')
   async getSignals() {
     return this.devicesService.getSignals();
+  }
+  @EventPattern('signals')
+  async handleSignals(
+    @Payload()
+    payload: {
+      deviceId: string;
+      time: number | string;
+      data: [number, [number, number, number]][];
+      requestId?: string;
+    },
+    @Ctx() context: RmqContext,
+  ) {
+    try {
+      console.log("mamad")
+      this.devicesService.createSignal({
+        deviceId: payload.deviceId,
+        time: payload.time,
+        data: payload.data,
+      } as any);
+      this.rmqService.ack(context);
+    } catch (err) {
+      console.log(err);
+      this.rmqService.ack(context);
+    }
+  }
+  @Delete()
+  async deleteAll() {
+    return this.devicesService.deleteAll();
   }
 }

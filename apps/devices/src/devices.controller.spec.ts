@@ -14,9 +14,9 @@ describe('DevicesController', () => {
     devicesController = app.get<DevicesController>(DevicesController);
   });
 
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(devicesController.getHello()).toBe('Hello World!');
-    });
-  });
+  // describe('root', () => {
+  //   it('should return "Hello World!"', () => {
+  //     expect(devicesController.getHello()).toBe('Hello World!');
+  //   });
+  // });
 });

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Delete, Get } from '@nestjs/common';
 import { SignalProcessorService } from './signal-processor.service';
 import { Ctx, EventPattern, Payload, RmqContext } from '@nestjs/microservices';
 import { RmqService } from '@app/common';
@@ -27,5 +27,9 @@ export class SignalProcessorController {
   @Get()
   getAnalysis() {
     return this.signalProcessorService.getAnalysis();
+  }
+  @Delete()
+  deleteAll() {
+    return this.signalProcessorService.deleteAll();
   }
 }
