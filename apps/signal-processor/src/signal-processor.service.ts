@@ -5,7 +5,6 @@ import { SignalAnalysisRepository } from './repository/signal-analysis.repositor
 
 @Injectable()
 export class SignalProcessorService {
-  private readonly logger = new Logger(SignalProcessorService.name);
   constructor(private readonly analysisrepo: SignalAnalysisRepository) {}
 
   analyzeAndStore = async (payload: any) => {
